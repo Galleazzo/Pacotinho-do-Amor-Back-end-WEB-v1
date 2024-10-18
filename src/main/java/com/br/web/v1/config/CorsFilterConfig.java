@@ -24,7 +24,28 @@ public class CorsFilterConfig {
         config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         config.addAllowedMethod("*");
         config.setAllowedOrigins(allowedOrigins);
+
+        //Configuração para API de login
+        UrlBasedCorsConfigurationSource authConfigSource = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration authConfig = new CorsConfiguration();
+        authConfig.setAllowCredentials(true);
+        authConfig.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        authConfig.addAllowedMethod("*");
+        authConfig.setAllowedOrigins(allowedOrigins);
+        authConfigSource.registerCorsConfiguration("/auth/login", authConfig);
+
+        //Configuração para API de validação de token já existente
+        UrlBasedCorsConfigurationSource tokenValid = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration tokenValidConfig = new CorsConfiguration();
+        tokenValidConfig.setAllowCredentials(true);
+        tokenValidConfig.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        tokenValidConfig.addAllowedMethod("*");
+        tokenValidConfig.setAllowedOrigins(allowedOrigins);
+        tokenValid.registerCorsConfiguration("/auth/tokenValid", authConfig);
+
         source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/auth/login", authConfig);
+        source.registerCorsConfiguration("/auth/tokenValid", tokenValidConfig);
 
         FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
