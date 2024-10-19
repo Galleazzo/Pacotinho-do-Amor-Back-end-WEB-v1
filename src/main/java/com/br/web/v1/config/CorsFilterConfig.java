@@ -14,41 +14,23 @@ import java.util.List;
 @Configuration
 public class CorsFilterConfig {
 
-    public static final List<String> allowedOrigins = Arrays.asList("http://localhost:4200", "https://pacotinho-do-amor.vercel.app", "https://pacotinho-do-amor.vercel.app/");
+    public static final List<String> allowedOrigins = Arrays.asList("http://localhost:4200", "https://pacotinho-do-amor.vercel.app");
 
     @Bean
     public FilterRegistrationBean<CorsFilter> initCorsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
+
         config.setAllowCredentials(true);
         config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
-        config.addAllowedMethod("*");
-        config.setAllowedOrigins(allowedOrigins);
+        config.addAllowedMethod("*"); // Permite todos os métodos (GET, POST, etc.)
+        config.setAllowedOrigins(allowedOrigins); // Permite requisições de localhost e do seu site em produção
 
-        //Configuração para API de login
-        UrlBasedCorsConfigurationSource authConfigSource = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration authConfig = new CorsConfiguration();
-        authConfig.setAllowCredentials(true);
-        authConfig.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
-        authConfig.addAllowedMethod("*");
-        authConfig.setAllowedOrigins(allowedOrigins);
-        authConfigSource.registerCorsConfiguration("/auth/login", authConfig);
-
-        //Configuração para API de validação de token já existente
-        UrlBasedCorsConfigurationSource tokenValid = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration tokenValidConfig = new CorsConfiguration();
-        tokenValidConfig.setAllowCredentials(true);
-        tokenValidConfig.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
-        tokenValidConfig.addAllowedMethod("*");
-        tokenValidConfig.setAllowedOrigins(allowedOrigins);
-        tokenValid.registerCorsConfiguration("/auth/tokenValid", authConfig);
-
+        // Aplica a configuração de CORS para todas as rotas
         source.registerCorsConfiguration("/**", config);
-        source.registerCorsConfiguration("/auth/login", authConfig);
-        source.registerCorsConfiguration("/auth/tokenValid", tokenValidConfig);
 
         FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE); // Prioriza este filtro
         return bean;
     }
 }
