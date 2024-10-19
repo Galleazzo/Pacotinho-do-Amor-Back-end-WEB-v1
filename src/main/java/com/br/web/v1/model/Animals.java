@@ -47,7 +47,7 @@ public class Animals {
     @Column(name = "priority")
     private Long priority;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade =CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade =CascadeType.ALL)
     @JoinTable(name = "animal_image",
             joinColumns = {
                     @JoinColumn(name = "animal_id")
