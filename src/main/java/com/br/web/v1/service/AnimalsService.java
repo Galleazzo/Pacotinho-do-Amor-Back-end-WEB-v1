@@ -18,10 +18,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class AnimalsService {
@@ -31,6 +28,8 @@ public class AnimalsService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    private List<AnimalsDTO> savedAnimalList = new ArrayList<>();
 
     public Page<AnimalsDTO> getByCriteria(String name, Integer page, Integer pageSize, String sort, String order) {
         Pageable pageable = PageRequest.of(page, pageSize, Sort.Direction.fromString(order), sort);
@@ -66,9 +65,18 @@ public class AnimalsService {
     }
 
     public List<AnimalsDTO> getAll() {
-        List<Animals> animalsList = this.animalsRepository.findAll();
-        Type listType = new TypeToken<List<AnimalsDTO>>() {}.getType();
-        return this.modelMapper.map(animalsList, listType);
+
+        if (this.savedAnimalList.isEmpty() || this.savedAnimalList.size() != this.getCountAnimals()) {
+            List<Animals> animalsList = this.animalsRepository.findAll();
+            Type listType = new TypeToken<List<AnimalsDTO>>() {}.getType();
+            this.savedAnimalList = this.modelMapper.map(animalsList, listType);
+            return this.modelMapper.map(animalsList, listType);
+        }
+        return this.savedAnimalList;
+    }
+
+    private int getCountAnimals() {
+        return this.animalsRepository.getCountAnimals();
     }
 
     public Set<ImageAnimalModel> uplodImage(MultipartFile[] multipartFiles) throws IOException {

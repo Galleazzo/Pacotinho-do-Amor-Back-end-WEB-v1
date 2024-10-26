@@ -15,6 +15,9 @@ public interface AnimalsRepository extends JpaRepository<Animals, Long> {
     @Query(nativeQuery = true, value = "SELECT * FROM animals WHERE id = :id")
     Animals getById(@Param("id") Long id);
 
+    @Query(nativeQuery = true, value = "SELECT COUNT(a.id) FROM animals a")
+    int getCountAnimals();
+
     @Query(nativeQuery = true, value = "SELECT " +
             "a.id AS id, " +
             "a.name AS name, " +
