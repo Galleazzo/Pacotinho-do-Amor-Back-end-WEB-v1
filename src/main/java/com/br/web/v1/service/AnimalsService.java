@@ -29,6 +29,9 @@ public class AnimalsService {
     @Autowired
     private ModelMapper modelMapper;
 
+    private List<AnimalsDTO> cachedAnimalList;
+    private UUID cacheVersion = UUID.randomUUID();
+
     private List<AnimalsDTO> savedAnimalList = new ArrayList<>();
 
     public Page<AnimalsDTO> getByCriteria(String name, Integer page, Integer pageSize, String sort, String order) {
@@ -65,18 +68,31 @@ public class AnimalsService {
     }
 
     public List<AnimalsDTO> getAll() {
-
-        if (this.savedAnimalList.isEmpty() || this.savedAnimalList.size() != this.getCountAnimals()) {
-            List<Animals> animalsList = this.animalsRepository.findAll();
-            Type listType = new TypeToken<List<AnimalsDTO>>() {}.getType();
-            this.savedAnimalList = this.modelMapper.map(animalsList, listType);
-            return this.modelMapper.map(animalsList, listType);
+        if (cachedAnimalList == null) {
+            loadCache();
         }
-        return this.savedAnimalList;
+        return cachedAnimalList;
     }
 
-    private int getCountAnimals() {
-        return this.animalsRepository.getCountAnimals();
+    private void loadCache() {
+        List<Animals> animalsList = animalsRepository.findAll();
+        Type listType = new TypeToken<List<AnimalsDTO>>() {}.getType();
+        cachedAnimalList = modelMapper.map(animalsList, listType);
+    }
+
+    public void addAnimal(Animals animal) {
+        animalsRepository.save(animal);
+        invalidateCache();
+    }
+
+    public void removeAnimal(Long id) {
+        animalsRepository.deleteById(id);
+        invalidateCache();
+    }
+
+    private void invalidateCache() {
+        cacheVersion = UUID.randomUUID();
+        cachedAnimalList = null;
     }
 
     public Set<ImageAnimalModel> uplodImage(MultipartFile[] multipartFiles) throws IOException {
